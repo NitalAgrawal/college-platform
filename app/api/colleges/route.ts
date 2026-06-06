@@ -1,23 +1,25 @@
 export const dynamic = "force-dynamic";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest) {
   try {
-    const { id } = await context.params;
-    const college = await prisma.college.findUnique({
-      where: { id },
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search") || "";
+    const location = searchParams.get("location") || "";
+
+    const colleges = await prisma.college.findMany({
+      where: {
+        AND: [
+          { name: { contains: search, mode: "insensitive" } },
+          location ? { location: { contains: location, mode: "insensitive" } } : {},
+        ],
+      },
+      orderBy: { rating: "desc" },
     });
 
-    if (!college) {
-      return NextResponse.json({ error: "College not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(college);
+    return NextResponse.json(colleges);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
