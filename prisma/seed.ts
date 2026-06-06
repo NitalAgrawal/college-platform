@@ -1,14 +1,6 @@
-import { PrismaClient } from "@prisma/client/edge";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import * as dotenv from "dotenv";
+import { PrismaClient } from "@prisma/client";
 
-dotenv.config();
-
-const adapter = new PrismaNeon({
-  connectionString: process.env.DATABASE_URL!,
-});
-
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
   const colleges = [
