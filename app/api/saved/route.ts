@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// Save a college
+interface SavedCollege {
+  college: {
+    id: string;
+    name: string;
+    location: string;
+    fees: number;
+    rating: number;
+    image: string | null;
+    courses: string[];
+    placements: string | null;
+    overview: string | null;
+    createdAt: Date;
+  };
+}
+
 export async function POST(req: NextRequest) {
   const { userId, collegeId } = await req.json();
 
@@ -16,7 +30,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(saved);
 }
 
-// Get saved colleges
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
@@ -30,10 +43,9 @@ export async function GET(req: NextRequest) {
     include: { college: true },
   });
 
-  return NextResponse.json(saved.map((s) => s.college));
+  return NextResponse.json(saved.map((s: SavedCollege) => s.college));
 }
 
-// Unsave a college
 export async function DELETE(req: NextRequest) {
   const { userId, collegeId } = await req.json();
 
